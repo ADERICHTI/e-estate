@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate - Login & Signup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root{
+            --primary-bg: #0A0E14; /* primary background */
+            --surface: #1C222D; /* surface / card color */
+            --accent: #C5A059; /* primary accent (gold) */
+            --accent-600: #A3833F; /* slightly darker accent */
+            --text-primary: #E0E0E0; /* primary text */
+            --feedback: #FFFFFF; /* feedback / hover color */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, var(--primary-bg) 0%, #05070a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-font-smoothing:antialiased;
+        }
+
+        .container {
+            width: 400px;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .logo {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+        }
+
+        .logo img {
+            height: 175px; /* scaled 100px * 1.75 */
+            width: auto;
+            max-width: 245px; /* scaled 140px * 1.75 */
+            object-fit: contain;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+        }
+
+        .toggle-buttons {
+            display: flex;
+            background: rgba(197,160,89,0.06);
+            border-radius: 50px;
+            padding: 5px;
+            border: 1px solid rgba(197,160,89,0.12);
+            flex: 1;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            border-radius: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-600) 100%);
+            color: var(--primary-bg);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+        }
+
+        .card-container {
+            position: relative;
+            height: 450px;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        .cards-wrapper {
+            display: flex;
+            width: 200%;
+            height: 100%;
+            transition: transform 0.6s ease;
+            transform: translateX(0);
+        }
+
+        .cards-wrapper.slide-left {
+            transform: translateX(-50%);
+        }
+
+        .cards-wrapper.slide-right {
+            transform: translateX(0);
+        }
+
+        .card {
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(180deg, var(--surface) 0%, #15181f 100%);
+            border-radius: 12px;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.03);
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--text-primary);
+        }
+
+        .card.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .card-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .card-subtitle {
+            color: rgba(224,224,224,0.85);
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.015);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.18s ease;
+        }
+
+        .form-group input::placeholder{
+            color: rgba(224,224,224,0.55);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 6px 18px rgba(197,160,89,0.12);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-600) 100%);
+            color: var(--primary-bg);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.14s ease, box-shadow 0.14s ease;
+            margin-top: 20px;
+            box-shadow: 0 8px 18px rgba(163,131,63,0.18);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 18px 36px rgba(255,255,255,0.06);
+            color: var(--feedback);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+            text-align: center;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .forgot-password a {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.18s ease;
+        }
+
+        .forgot-password a:hover {
+            color: var(--feedback);
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                max-width: 500px;
+                padding: 0 15px;
+            }
+
+            /* Stack header row vertically on mobile: logo on top, toggles below */
+            .header-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .logo {
+                margin-bottom: 4px;
+            }
+
+            .logo img {
+                height: 335px; /* 67px * 5 = 335px (500% of current mobile size) */
+            }
+
+            .toggle-buttons {
+                width: 100%;
+                margin-top: 6px;
+            }
+
+            .card-container {
+                height: 400px;
+            }
+
+            .card {
+                padding: 30px 20px;
+            }
+
+            .card-title {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+
+            .card-subtitle {
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+
+            .form-group input {
+                padding: 10px 12px;
+                font-size: 16px;
+            }
+
+            .submit-btn {
+                padding: 10px;
+                font-size: 14px;
+                margin-top: 15px;
+            }
+
+            .toggle-btn {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .forgot-password {
+                margin-top: 8px;
+            }
+
+            .forgot-password a {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+            }
+
+            .header-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .logo img {
+                height: 265px; /* 53px * 5 = 265px (500% of current small-mobile size) */
+            }
+
+            .header-row {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .card-container {
+                height: 390px;
+            }
+
+            .card {
+                padding: 18px 15px;
+            }
+
+            .card-title {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+
+            .card-subtitle {
+                font-size: 12px;
+                margin-bottom: 10px;
+            }
+
+            .form-group {
+                margin-bottom: 10px;
+            }
+
+            .form-group label {
+                font-size: 12px;
+                margin-bottom: 4px;
+            }
+
+            .form-group input {
+                padding: 8px 10px;
+                font-size: 14px;
+                border-radius: 6px;
+            }
+
+            .submit-btn {
+                padding: 8px 10px;
+                font-size: 13px;
+                margin-top: 10px;
+                border-radius: 6px;
+            }
+
+            .toggle-btn {
+                padding: 6px;
+                font-size: 12px;
+                border-radius: 30px;
+            }
+
+            .error-message,
+            .success-message {
+                font-size: 11px;
+                margin-top: 6px;
+            }
+
+            body {
+                padding: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Row: Logo & Toggle Buttons -->
+        <div class="header-row">
+            <div class="logo">
+                <img src="logo.png" alt="Logo">
+            </div>
+            <!-- Toggle Buttons (Login first) -->
+            <div class="toggle-buttons">
+                <button class="toggle-btn active" data-tab="login">Login</button>
+                <button class="toggle-btn" data-tab="signup">Signup</button>
+            </div>
+        </div>
+
+        
+        <!-- Card Container -->
+        <div class="card-container">
+            <div class="cards-wrapper" id="cards-wrapper">
+                <!-- Login Card -->
+                <div class="card" id="login-card">
+                <h2 class="card-title">Welcome Back</h2>
+                <p class="card-subtitle">Sign in to your account</p>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="#">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="submit-btn">Login</button>
+                    <div class="error-message" id="login-error"></div>
+                    <div class="success-message" id="login-success"></div>
+                </form>
+            </div>
+
+                <!-- Signup Card -->
+                <div class="card" id="signup-card">
+                <h2 class="card-title">Create Account</h2>
+                <p class="card-subtitle">Join us today</p>
+                <form id="signup-form">
+                    <div class="form-group">
+                        <label for="signup-email">Email</label>
+                        <input type="email" id="signup-email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" placeholder="Create a password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup-confirm">Confirm Password</label>
+                        <input type="password" id="signup-confirm" placeholder="Confirm password" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Signup</button>
+                    <div class="error-message" id="signup-error"></div>
+                    <div class="success-message" id="signup-success"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle functionality
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+        const cards = document.querySelectorAll('.card');
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                const wrapper = document.getElementById('cards-wrapper');
+
+                // Update active button
+                toggleBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Show signup (second card) when tab is 'signup', otherwise show login (first card)
+                if (tab === 'signup') {
+                    wrapper.classList.add('slide-left');
+                } else {
+                    wrapper.classList.remove('slide-left');
+                }
+
+                // Clear previous messages
+                document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
+                document.querySelectorAll('.success-message').forEach(el => el.classList.remove('show'));
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Property Listing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- 🎨 THEME VARIABLE MATRIX --- */
+        :root {
+            --bg-primary:  #101218; /* Midnight Navy */
+            --bg-surface: #181d27; /* Slate Dark */
+            --accent: #C5A059; /* Matte Gold */
+            --text-main: #E0E0E0; /* Soft White */
+            --text-muted: #8E9AA8;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --nav-blend: rgba(10, 14, 20, 0.85);
+            --easing: cubic-bezier(0.4, 0.0, 0.2, 1);
+            --surface-soft:  #15181f;
+            --border: rgba(224,224,224,0.12);
+            --danger: #E94F4F; 
+        }
+
+        [data-theme="light"] {
+            --primary-bg: #0A0E14;
+            --bg-surface: #FFFFFF;
+            --accent: #B08A43;
+            --text-main: #202124;
+            --text-muted: #5F6368;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --nav-blend: rgba(248, 249, 250, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, #090d13 100%, transparent 40%), var(--bg-primary);
+            color: var(--text-main);
+            font-family: 'Product Sans', 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .page-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        header {
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+            font-size: clamp(2.2rem, 2.4vw, 3rem);
+        }
+
+        header p {
+            margin: 0;
+            color: var(--text-muted);
+        }
+
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.6);
+        }
+
+        .section-title {
+            margin: 0 0 16px;
+            font-size: 1.1rem;
+            letter-spacing: 0.02em;
+            color: var(--accent);
+            font-weight:bold;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .field-row.three {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field label {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        .field input,
+        .field textarea,
+        .field select {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            padding: 14px 16px;
+            font-size: 0.95rem;
+            min-height: 44px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .field textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .field input:focus,
+        .field textarea:focus,
+        .field select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(197,160,89,0.12);
+        }
+        h1{
+            color: #C5A059;;
+        }
+
+        .media-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .media-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            padding: 18px;
+            min-height: 170px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .media-card input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+        }
+
+        .media-card svg {
+            width: 40px;
+            height: 40px;
+            color: var(--accent);
+        }
+
+        .checkbox-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .checkbox-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.02);
+            color: var(--text-main);
+        }
+
+        .checkbox-item input {
+            accent-color: var(--accent);
+            width: 18px;
+            height: 18px;
+        }
+
+        .inline-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .inline-list .field {
+            flex: 1 1 220px;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 12px;
+        }
+
+        .button {
+            border: none;
+            border-radius: 14px;
+            background: var(--accent);
+            color: black;
+            padding: 14px 22px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            min-height: 52px;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(197,160,89,0.18);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255,255,255,0.08);
+            margin: 24px 0;
+        }
+
+        .rating-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 18px;
+            align-items: end;
+        }
+
+        .rating-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .rating-label {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .note {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 940px) {
+            .field-row,
+            .field-row.three,
+            .media-grid,
+            .checkbox-grid,
+            .rating-row {
+                grid-template-columns: 1fr;
+            }
+
+            .rating-row {
+                align-items: stretch;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-wrap {
+                padding: 16px;
+            }
+
+            .card {
+                padding: 18px;
+                border-radius: 16px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .media-card,
+            .checkbox-item,
+            .field input,
+            .field textarea,
+            .field select,
+            .button {
+                width: 100%;
+            }
+
+            .media-card {
+                min-height: 140px;
+            }
+
+            .field input,
+            .field textarea,
+            .field select {
+                padding: 12px 14px;
+                font-size: 0.95rem;
+            }
+
+            .button-row {
+                justify-content: stretch;
+            }
+
+            .button {
+                width: 100%;
+                justify-content:center
+            }
+
+            .checkbox-item {
+                padding: 12px;
+            }
+
+            .field-row.three {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <header>
+            <h1>Admin</h1>
+          
+            <p>Add a New Property to The Listing</p>
+        </header>
+
+        <form>
+            <div class="grid">
+                <div class="card">
+                    <p class="section-title">Media</p>
+                    <div class="media-grid">
+                        <div class="media-card">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h10M4 17h7"></path></svg>
+                            <label>Upload property images</label>
+                            <input type="file" accept="image/*" multiple>
+                        </div>
+                        <div class="media-card">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"></path><path d="M10 8l6 4-6 4V8z"></path></svg>
+                            <label>Upload walkthrough video</label>
+                            <input type="file" accept="video/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <p class="section-title">Property Details</p>
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="property-title">Property Name / Title / Headline</label>
+                            <input id="property-title" type="text" placeholder="Enter property headline">
+                        </div>
+                        <div class="field">
+                            <label for="property-state">State</label>
+                            <input id="property-state" type="text" placeholder="State">
+                        </div>
+                    </div>
+
+                    <div class="field-row">
+                        <div class="field">
+                            <label for="property-city">City</label>
+                            <input id="property-city" type="text" placeholder="City">
+                        </div>
+                        <div class="field">
+                            <label for="property-price">Price</label>
+                            <input id="property-price" type="number" placeholder="e.g. ₦4,050,000">
+                        </div>
+                    </div>
+
+                    <div class="field-row three">
+                        <div class="field">
+                            <label for="plot-area">Land Size / Plot Area</label>
+                            <input id="plot-area" type="number" placeholder="e.g. 5,000 sq ft">
+                        </div>
+                        <div class="field">
+                            <label for="living-space">Area of Living / House Space</label>
+                            <input id="living-space" type="number" placeholder="e.g. 2,500 sq ft">
+                        </div>
+                        <div class="field">
+                            <label for="bedrooms">Number of Bedrooms</label>
+                            <input id="bedrooms" type="number" min="0" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="field-row three">
+                        <div class="field">
+                            <label for="bathrooms">Number of Bathrooms / Toilets</label>
+                            <input id="bathrooms" type="number" min="0" placeholder="0">
+                        </div>
+                        <div class="field">
+                            <label for="other-amenities">Other Amenities</label>
+                            <input id="other-amenities" type="text" placeholder="Add amenities separated by commas">
+                        </div>
+                        <div class="field">
+                            <label for="summary">Summary</label>
+                            <textarea id="summary" placeholder="Add a brief property summary"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <p class="section-title">Interior Details</p>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item"><input type="checkbox"> Main Living Room</label>
+                        <label class="checkbox-item"><input type="checkbox"> Family Lounge</label>
+                        <label class="checkbox-item"><input type="checkbox"> Dining Area</label>
+                        <label class="checkbox-item"><input type="checkbox"> Kitchen & Pantry / Store</label>
+                        <label class="checkbox-item"><input type="checkbox"> Laundry Room</label>
+                        <label class="checkbox-item"><input type="checkbox"> Study / Home Office</label>
+                        <label class="checkbox-item"><input type="checkbox"> Guest Bedrooms</label>
+                        <label class="checkbox-item"><input type="checkbox"> Master Suite (Bedroom, Walk-in Closet, Balcony)</label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <p class="section-title">Amenities & Infrastructure</p>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-item"><input type="checkbox"> Gate System</label>
+                        <label class="checkbox-item"><input type="checkbox"> Gatehouse / Security Post</label>
+                        <label class="checkbox-item"><input type="checkbox"> Outdoor Flooring</label>
+                        <label class="checkbox-item"><input type="checkbox"> Backyard</label>
+                        <label class="checkbox-item"><input type="checkbox"> Lawn</label>
+                        <label class="checkbox-item"><input type="checkbox"> Garden</label>
+                        <label class="checkbox-item"><input type="checkbox"> Rooftops</label>
+                        <label class="checkbox-item"><input type="checkbox"> Patios</label>
+                        <label class="checkbox-item"><input type="checkbox"> Balconies</label>
+                        <label class="checkbox-item"><input type="checkbox"> Boys' Quarters (BQ) Availability</label>
+                        <label class="checkbox-item"><input type="checkbox"> Water Source: Borehole</label>
+                        <label class="checkbox-item"><input type="checkbox"> Water Source: Well</label>
+                        <label class="checkbox-item"><input type="checkbox"> Water Storage Capacity (Tanks)</label>
+                        <label class="checkbox-item"><input type="checkbox"> Water Treatment Plant</label>
+                        <label class="checkbox-item"><input type="checkbox"> Generator House / Enclosure</label>
+                        <label class="checkbox-item"><input type="checkbox"> Solar / Inverter Pre-wiring</label>
+                        <label class="checkbox-item"><input type="checkbox"> Drainage Infrastructure</label>
+                        <label class="checkbox-item"><input type="checkbox"> Neighborhood Security Level</label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <p class="section-title">Property Rating</p>
+                    <div class="rating-row">
+                        <div>
+                            <p class="rating-value">Out of  5.0</p>
+                            <p class="rating-label">Rate the property from 0.0 to 5.0</p>
+                        </div>
+                        <div class="field">
+                            <label for="property-rating">Rating</label>
+                            <input id="property-rating" type="number" step="0.1" min="0" max="5" placeholder="0.0">
+                        </div>
+                    </div>
+                    <p class="note"></p>
+                </div>
+            </div>
+
+            <div class="button-row">
+                <button type="submit" class="button">Add Property</button>
+            </div>
+        </form>
+    </div>
+</body>
+<footer>
+    <p> </p>
+</footer>
+</html>
