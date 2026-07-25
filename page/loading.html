@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sen:wght@400..800&display=swap" rel="stylesheet">
+    <title>Loading</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color:#0A0E14
+        }
+
+        .loading-text {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 48px;
+            font-weight: bolder;
+            color: #C5A059;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Sen', sans-serif;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #070101;
+            border-top: 5px solid #C5A059;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .loading-text {
+                font-size: 32px;
+                gap: 8px;
+            }
+
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border: 4px solid #070101;
+                border-top: 4px solid #C5A059;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .loading-text {
+                font-size: 50px;
+                gap: 5px;
+            }
+
+            .spinner {
+                width: 55px;
+                height: 55px;
+                border: 3px solid #070101;
+                border-top: 3px solid #C5A059;
+            }
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div class="loading-text">
+        <span style="font-family: 'Sen', sans-serif;">ARCHST</span>
+        <div class="spinner"></div>
+        <span style="font-family: 'Sen', sans-serif;">NE</span>
+    </div>
+    <script>
+        // Redirect to the main page after 5 seconds
+        setTimeout(() => {
+  // Use replace() instead of href to overwrite the history entry
+  window.location.replace("2main.html");
+}, 3000);
+    </script>
+</body>
+
+</html>

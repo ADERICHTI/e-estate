@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archstone</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- 🎨 THEME VARIABLE MATRIX --- */
+        :root {
+            /* Dark Mode Design Token defaults[cite: 1] */
+            --bg-primary: #0A0E14; /* Midnight Navy[cite: 1] */
+            --bg-surface: #1C222D; /* Slate Dark[cite: 1] */
+            --accent: #C5A059;     /* Matte Gold[cite: 1] */
+            --text-main: #E0E0E0;  /* Soft White[cite: 1] */
+            --text-muted: #8E9AA8;
+            --shadow: rgba(0, 0, 0, 0.4);
+            --nav-blend: rgba(10, 14, 20, 0.85);
+            --easing: cubic-bezier(0.4, 0.0, 0.2, 1); /* Google Signature Curve */
+        }
+
+        [data-theme="light"] {
+            /* Light Mode Design Tokens */
+            --bg-primary: #F8F9FA; /* Google Off-White */
+            --bg-surface: #FFFFFF; /* Pure White */
+            --accent: #B08A43;     /* Deeper Gold Accent */
+            --text-main: #202124;  /* Google Charcoal */
+            --text-muted: #5F6368;
+            --shadow: rgba(0, 0, 0, 0.08);
+            --nav-blend: rgba(248, 249, 250, 0.85);
+        }
+
+        /* --- 🧱 BASE STYLE ARCHITECTURE --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Product Sans', 'Roboto', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            overflow: hidden; /* Lock viewport for SPA structural sliding panels */
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* --- 🗺️ IMPLICIT BLENDED NAVIGATION BAR --- */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: var(--nav-blend);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] nav {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            transition: all 0.2s var(--easing);
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: var(--accent);
+        }
+
+        [data-theme="light"] .nav-btn:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-btn .btn-text {
+            display: none; /* Mobile First Strategy: Icon only[cite: 1] */
+        }
+
+        /* --- 🎬 STAGE & MOTION ROUTING CANVAS --- */
+        .spa-stage {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            padding-top: 70px; /* Offset for implicit nav layer */
+            overflow: hidden;
+        }
+
+        .spa-view {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+            padding: 24px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateX(0);
+            transition: transform 0.5s var(--easing), opacity 0.4s ease-in-out;
+        }
+
+        /* View State States for Motion Slide System */
+        .spa-view.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(0) !important;
+        }
+
+        .spa-view.slide-left {
+            transform: translateX(-100%);
+        }
+
+        .spa-view.slide-right {
+            transform: translateX(100%);
+        }
+
+        /* --- 🏡 VIEW 1: HOME PAGE --- */
+        .hero-section {
+            text-align: center;
+            padding: 40px 0 24px 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-container {
+            position: relative;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 20px 16px 50px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: var(--bg-surface);
+            color: var(--text-main);
+            font-size: 1rem;
+            box-shadow: var(--shadow);
+            outline: none;
+            transition: all 0.3s var(--easing);
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.2);
+        }
+
+        /* Category quick-filter rows */
+        .category-row {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 16px 0;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+        }
+        .category-row::-webkit-scrollbar { display: none; }
+
+        .cat-chip {
+            background-color: var(--bg-surface);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 8px 18px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .cat-chip:hover, .cat-chip.active {
+            background-color: var(--accent);
+            color: #0A0E14 !important;
+        }
+
+        /* 📱 Mobile First 16:9 Grid Layout[cite: 1] */
+        .property-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Single column stack default on small devices */
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-bottom: 40px;
+        }
+
+        .property-card {
+            background-color: var(--bg-surface);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: transform 0.3s var(--easing), border-color 0.3s var(--easing);
+        }
+
+        .property-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .image-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* Fixed aspect ratio: 16:9[cite: 1] */
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-details {
+            padding: 16px;
+        }
+
+        .card-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card-price {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 12px;
+            font-size: 0.85rem;
+        }
+
+        .card-rating {
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* --- 🔍 VIEW 2: SEARCH / FILTER VIEW --- */
+        .results-header {
+            max-width: 1400px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .clear-search-btn {
+            background: none;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* --- 🖼️ VIEW 3: FULL PROPERTY DETAILS VIEW --- */
+        .details-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
+
+        /* Custom Slideshow Carousel */
+        .slideshow-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Frame[cite: 1] */
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .slide-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            transition: transform 0.4s var(--easing);
+        }
+
+        .slide-img {
+            min-width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .slide-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #FFF;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .slide-nav:hover { background-color: var(--accent); color:#0A0E14; }
+        .slide-prev { left: 16px; }
+        .slide-next { right: 16px; }
+
+        .details-info-block {
+            background-color: var(--bg-surface);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+        .feature-item i { color: var(--accent); width: 20px; }
+
+        .agent-card {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .agent-call-btn {
+            background-color: var(--accent);
+            color: #0A0E14;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .agent-call-btn:hover { opacity: 0.9; }
+
+        /* --- 📝 VIEW 4: CONTACT & ABOUT US PAGE --- */
+        .about-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding-bottom: 60px;
+        }
+
+        .feedback-form {
+            background-color: var(--bg-surface);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            outline: none;
+        }
+        .form-control:focus { border-color: var(--accent); }
+        textarea.form-control { resize: none; height: 100px; }
+
+        .app-version-tag {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 20px;
+        }
+
+        /* --- 👥 GLOBAL USER MODAL OVERLAY --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s var(--easing);
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .user-modal {
+            background-color: var(--bg-surface);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s var(--easing);
+        }
+
+        .modal-overlay.open .user-modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Theme Toggle System Switch */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #555;
+            transition: .3s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+        }
+
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            color: #0A0E14;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto;
+        }
+
+        .modal-action-btn {
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .btn-logout { background-color: #EA4335; color: white; }
+        .btn-login { background-color: var(--accent); color: #0A0E14; }
+        .btn-modal-home { background-color: rgba(255,255,255,0.08); color: var(--text-main); }
+        [data-theme="light"] .btn-modal-home { background-color: rgba(0,0,0,0.05); }
+
+        /* --- 💻 PC RESPONSIVE ADAPTATION LAYERS --- */
+        @media (min-width: 768px) {
+            .property-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2x2 Layout Engine Activation[cite: 1] */
+            }
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .nav-btn .btn-text {
+                display: inline-block; /* Fade labels into view on PC View[cite: 1] */
+            }
+            .nav-btn {
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <!-- 🗺️ CORE NAVIGATION LAYER -->
+    <nav>
+        <div class="nav-title" id="navTitle" onclick="router.navigate('home')">Archstone</div>
+        <div class="nav-controls">
+            <button class="nav-btn" id="contextNavBtn" onclick="handleContextNavAction()">
+                <i class="fas fa-question" id="contextIcon"></i>
+                <span class="btn-text" id="contextText">About</span>
+            </button>
+            <button class="nav-btn" onclick="modalEngine.toggle(true)">
+                <i class="fas fa-user"></i>
+                <span class="btn-text">Profile</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 🎬 SINGLE PAGE TRANSITION CONTAINER FRAME -->
+    <div class="spa-stage">
+
+        <!-- VIEW 1: HOME PAGE -->
+        <div id="view-home" class="spa-view active">
+            <div class="hero-section">
+                <h2>Find Your Architecture of Living</h2>
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="search-input" id="mainSearch" placeholder="Search locations, prices, spaces..." onkeyup="handleSearch(event)">
+                </div>
+            </div>
+
+            <div class="category-row">
+                <div class="cat-chip active" onclick="filterCategory('all', this)">All Properties</div>
+                <div class="cat-chip" onclick="filterCategory('Duplex', this)">Duplex</div>
+                <div class="cat-chip" onclick="filterCategory('Apartment', this)">Apartments</div>
+                <div class="cat-chip" onclick="filterCategory('Bungalow', this)">Bungalows</div>
+                <div class="cat-chip" onclick="filterCategory('Mansion', this)">Mansions</div>
+            </div>
+
+            <div class="property-grid" id="homeGrid">
+                <!-- Programmatically rendered -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: SEARCH / FILTER VIEW -->
+        <div id="view-search" class="spa-view slide-right">
+            <div class="results-header">
+                <h3>Search Query Results</h3>
+                <button class="clear-search-btn" onclick="router.navigate('home')">Back to Catalog</button>
+            </div>
+            <div class="property-grid" id="searchGrid">
+                <!-- Filtered properties map out here -->
+            </div>
+        </div>
+
+        <!-- VIEW 3: FULL PROPERTY DETAILS VIEW -->
+        <div id="view-properties" class="spa-view slide-right">
+            <div class="details-container" id="detailsTarget">
+                <!-- Dynamic breakdown populated via item key references -->
+            </div>
+        </div>
+
+        <!-- VIEW 4: CONTACT & ABOUT US PAGE -->
+        <div id="view-about" class="spa-view slide-right">
+            <div class="about-container">
+                <div class="details-info-block">
+                    <h2>About Archstone Developers</h2>
+                    <p style="margin-top: 12px; line-height: 1.6; color: var(--text-muted);">
+                        We design minimal, smooth visual architectures mapping complex high-dimensional geometric simplicity onto the mobile real estate environment. Dedicated to fast execution layouts.
+                    </p>
+                </div>
+
+                <div class="feedback-form">
+                    <h3>Submit Platform Feedback</h3>
+                    <form id="feedbackForm" onsubmit="submitFeedback(event)" style="margin-top: 16px;">
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" class="form-control" required placeholder="name@domain.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Message / Note</label>
+                            <textarea class="form-control" required placeholder="What can we refine?"></textarea>
+                        </div>
+                        <button type="submit" class="agent-call-btn" style="width:100%">Send Feedback</button>
+                    </form>
+                </div>
+
+                <div class="app-version-tag">Archstone Framework Ecosystem • v1.4.2 (Production)</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 👥 DYNAMIC ACCOUNT MODAL VIEW LAYER -->
+    <div class="modal-overlay" id="userModalOverlay" onclick="modalEngine.handleOverlayClick(event)">
+        <div class="user-modal">
+            <div class="modal-header">
+                <h3>Account Dashboard</h3>
+                <div class="theme-switch-wrapper">
+                    <i class="fas fa-moon"></i>
+                    <label class="switch">
+                        <input type="checkbox" id="themeToggleCheckbox" onchange="modalEngine.toggleTheme(this)">
+                        <span class="slider"></span>
+                    </label>
+                    <i class="fas fa-sun"></i>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="user-avatar" id="userAvatarIcon">
+                    <!-- <i class="fas fa-user-astronaut"></i> -->
+                    <img src="" alt="fas fa-user-astronaut" id="userAvatarImage" style="width: 70px; height: 70px; border-radius: 50%; display: flex;">
+                </div>
+                <h2 id="userNameLabel">Guest</h2>
+                <p id="userEmailLabel" style="color: var(--text-muted); font-size: 0.9rem; margin-top: -10px;">Guest@gmail.com</p>
+                
+                <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: 8px 0;">
+                
+                <!-- Mandatory Home button shortcut across all system profiles -->
+                <button class="modal-action-btn btn-modal-home" onclick="modalEngine.triggerHome()">
+                    <i class="fas fa-home"></i> Return to Main Home
+                </button>
+                
+                <button class="modal-action-btn btn-modal-home" onclick="window.location.href='3admin-profile.html'"><!--onclick="window.location.href='3admin-profile.html'"-->>
+                    <i class="fas fa-user-tie"></i> Admin Profile
+                </button>
+                
+                <button class="modal-action-btn btn-logout" id="authActionButton">
+                    <i class="fas fa-sign-out-alt"></i> Log Out Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ⚙️ ROUTER AND RENDERING SYSTEMS DATA INJECTION -->
+    <script>
+        /* --- 🏛️ SAMPLE SOURCE REPOSITORY DATABASE --- */
+        const STORAGE_KEY = 'archstone_properties';
+        const DEFAULT_PROPERTIES = [
+            {
+                id: "prop-01",
+                title: "The Gold Pavilion",
+                category: "Duplex",
+                price: "$4,250,000",
+                rating: "4.9",
+                description: "Premium high-dimensional layout structure featuring absolute geometric symmetry and custom smart-automation environments.",
+                space: "4,500 sq ft",
+                location: "Banana Island, Lagos",
+                features: ["5 Bedrooms", "Custom Pool", "Solar Grid Array", "Home Cinema"],
+                images: [
+                    "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: "prop-02",
+                title: "Slate Minimalist Matrix",
+                category: "Apartment",
+                price: "$1,850,000",
+                rating: "4.8",
+                description: "A gorgeous dark-mode inspired penthouse utilizing open floor spatial layouts and seamless continuous raw concrete interfaces.",
+                space: "2,200 sq ft",
+                location: "Lekki Phase 1, Lagos",
+                features: ["3 Bedrooms", "Panoramic Balcony", "Gym Access", "24/7 Power"],
+                images: [
+                    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: "prop-03",
+                title: "Midnight Sovereign Villa",
+                category: "Mansion",
+                price: "$8,900,000",
+                rating: "5.0",
+                description: "Ultimate luxury configuration nestled directly inside secure perimeter zones. Full perimeter glass panels and zero visual design noise.",
+                space: "9,800 sq ft",
+                location: "Ikoyi, Lagos",
+                features: ["7 Bedrooms", "Helipad Access", "Infinite Edge Pool", "Wine Cellar"],
+                images: [
+                    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+                    "https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?auto=format&fit=crop&w=800&q=80"
+                ]
+            },
+            {
+                id: "prop-04",
+                title: "The Radiant Bungalow",
+                category: "Bungalow",
+                price: "$950,000",
+                rating: "4.6",
+                description: "Compact structural layout offering optimal thermal regulation profiles alongside expansive garden setups perfect for growing units.",
+                space: "1,850 sq ft",
+                location: "Gbagada, Lagos",
+                features: ["3 Bedrooms", "Spacious Yard", "Gated Security", "Water Treatment"],
+                images: [
+                    "https://ibb.co/wZyhw2KD"
+                ]
+            }
+        ];
+
+        let propertyCatalog = [];
+
+        function getPropertyCatalog() {
+            try {
+                const storedProperties = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                return [...DEFAULT_PROPERTIES, ...storedProperties];
+            } catch (error) {
+                console.warn('Unable to load saved properties.', error);
+                return [...DEFAULT_PROPERTIES];
+            }
+        }
+
+        /* --- 🎬 DYNAMIC APP STATE ROUTER CONTROLLER --- */
+        class SPALinearRouter {
+            constructor() {
+                this.views = {
+                    home: { el: document.getElementById('view-home'), title: 'Archstone' },
+                    search: { el: document.getElementById('view-search'), title: 'Search' },
+                    properties: { el: document.getElementById('view-properties'), title: 'Properties' },
+                    about: { el: document.getElementById('view-about'), title: 'About' }
+                };
+                this.currentRoute = 'home';
+                this.routeHistoryOrder = ['home', 'search', 'properties', 'about'];
+                this.historyStack = ['home'];
+                this.historyIndex = 0;
+                this.pendingViewId = null;
+                this.pendingContextId = null;
+            }
+
+            navigate(targetViewId, dataContextId = null, shouldPushState = true) {
+                if (targetViewId === this.currentRoute && !dataContextId) return;
+
+                const currentIdx = this.routeHistoryOrder.indexOf(this.currentRoute);
+                const targetIdx = this.routeHistoryOrder.indexOf(targetViewId);
+                const direction = targetIdx >= currentIdx ? 'forward' : 'backward';
+
+                const outViewObj = this.views[this.currentRoute];
+                const inViewObj = this.views[targetViewId];
+
+                if (targetViewId === 'properties' && dataContextId) {
+                    renderDetailsPage(dataContextId);
+                }
+
+                inViewObj.el.classList.remove('slide-left', 'slide-right');
+                inViewObj.el.classList.add(direction === 'forward' ? 'slide-right' : 'slide-left');
+
+                setTimeout(() => {
+                    outViewObj.el.classList.remove('active');
+                    outViewObj.el.classList.add(direction === 'forward' ? 'slide-left' : 'slide-right');
+
+                    inViewObj.el.classList.remove('slide-left', 'slide-right');
+                    inViewObj.el.classList.add('active');
+                    this.currentRoute = targetViewId;
+                    this.updateNavbarStates(inViewObj.title);
+
+                    if (shouldPushState) {
+                        if (this.historyIndex < this.historyStack.length - 1) {
+                            this.historyStack = this.historyStack.slice(0, this.historyIndex + 1);
+                        }
+                        this.historyStack.push(targetViewId);
+                        this.historyIndex = this.historyStack.length - 1;
+                        window.history.pushState({ view: targetViewId, contextId: dataContextId || null }, '', '#'+targetViewId);
+                    }
+                }, 20);
+            }
+
+            handleHistoryNavigation(event) {
+                const state = event.state;
+                const targetView = state && state.view ? state.view : 'home';
+                const targetContextId = state && state.contextId ? state.contextId : null;
+
+                if (targetView === this.currentRoute && !targetContextId) return;
+
+                const currentIdx = this.routeHistoryOrder.indexOf(this.currentRoute);
+                const targetIdx = this.routeHistoryOrder.indexOf(targetView);
+                const direction = targetIdx >= currentIdx ? 'forward' : 'backward';
+
+                const outViewObj = this.views[this.currentRoute];
+                const inViewObj = this.views[targetView];
+
+                if (targetView === 'properties' && targetContextId) {
+                    renderDetailsPage(targetContextId);
+                }
+
+                inViewObj.el.classList.remove('slide-left', 'slide-right');
+                inViewObj.el.classList.add(direction === 'forward' ? 'slide-right' : 'slide-left');
+
+                setTimeout(() => {
+                    outViewObj.el.classList.remove('active');
+                    outViewObj.el.classList.add(direction === 'forward' ? 'slide-left' : 'slide-right');
+
+                    inViewObj.el.classList.remove('slide-left', 'slide-right');
+                    inViewObj.el.classList.add('active');
+                    this.currentRoute = targetView;
+                    this.updateNavbarStates(inViewObj.title);
+                }, 20);
+            }
+
+            updateNavbarStates(titleText) {
+                document.getElementById('navTitle').innerText = titleText;
+                
+                const contextIcon = document.getElementById('contextIcon');
+                const contextText = document.getElementById('contextText');
+
+                if (this.currentRoute === 'about') {
+                    contextIcon.className = "fas fa-home";
+                    contextText.innerText = "Home";
+                } else {
+                    contextIcon.className = "fas fa-question";
+                    contextText.innerText = "About";
+                }
+            }
+        }
+
+        const router = new SPALinearRouter();
+
+        window.addEventListener('popstate', (event) => {
+            router.handleHistoryNavigation(event);
+        });
+
+        function handleContextNavAction() {
+            if (router.currentRoute === 'about') {
+                router.navigate('home');
+            } else {
+                router.navigate('about');
+            }
+        }
+
+        /* --- 🎨 MODAL & GLOBAL SYSTEM LOGIC CONTROLLERS --- */
+        let userAuthState = { loggedIn: true, name: "Iyiola Adedamola", email: "adedamolarichard79@gmail.com" };
+
+        const modalEngine = {
+            toggle: function(openState) {
+                const overlay = document.getElementById('userModalOverlay');
+                openState ? overlay.classList.add('open') : overlay.classList.remove('open');
+            },
+            handleOverlayClick: function(e) {
+                if (e.target.id === 'userModalOverlay') this.toggle(false);
+            },
+            toggleTheme: function(checkbox) {
+                const root = document.body;
+                if (checkbox.checked) {
+                    root.setAttribute('data-theme', 'light');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    root.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            },
+            toggleAuth: function() {
+                const btn = document.getElementById('authActionButton');
+                const nameLabel = document.getElementById('userNameLabel');
+                const emailLabel = document.getElementById('userEmailLabel');
+                const avatar = document.getElementById('userAvatarIcon');
+
+                if (userAuthState.loggedIn) {
+                    // Log Out Routine
+                    userAuthState.loggedIn = false;
+                    nameLabel.innerText = "Guest Architecture";
+                    emailLabel.innerText = "Please log in to save assets";
+                    avatar.innerHTML = `<i class="fas fa-ghost"></i>`;
+                    btn.className = "modal-action-btn btn-login";
+                    btn.innerHTML = `<i class="fas fa-sign-in-alt"></i> Access Profile`;
+                } else {
+                    // Log In Routine
+                    userAuthState.loggedIn = true;
+                    nameLabel.innerText = "Iyiola Adedamola";
+                    emailLabel.innerText = "adedamolarichard79@gmail.com";
+                    avatar.innerHTML = `<i class="fas fa-user-astronaut"></i>`;
+                    btn.className = "modal-action-btn btn-logout";
+                    btn.innerHTML = `<i class="fas fa-sign-out-alt"></i> Log Out Account`;
+                }
+            },
+            triggerHome: function() {
+                this.toggle(false);
+                router.navigate('home');
+            }
+        };
+
+        /* --- 🧱 CARD GENERATOR COMPONENT FACTORY --- */
+        function generatePropertyGridHTML(propertiesList) {
+            if (propertiesList.length === 0) {
+                return `<div style="text-align:center; width:100%; color:var(--text-muted); padding:40px;">No real estate units match this current query.</div>`;
+            }
+            return propertiesList.map(item => `
+                <div class="property-card" onclick="router.navigate('properties', '${item.id}')">
+                    <div class="image-wrapper">
+                        <img src="${item.images[0]}" alt="${item.title}">
+                    </div>
+                    <div class="card-details">
+                        <div class="card-header-row">
+                            <h4 class="card-title">${item.title}</h4>
+                            <span class="card-price">${item.price}</span>
+                        </div>
+                        <p class="card-desc">${item.description}</p>
+                        <div class="card-meta">
+                            <span><i class="fas fa-map-marker-alt" style="color:var(--accent);"></i> ${item.location}</span>
+                            <span class="card-rating"><i class="fas fa-star"></i> ${item.rating}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* --- 🔍 SEARCH AND DYNAMIC FILTER LOGIC MODULES --- */
+        let activeCategory = 'all';
+
+        function getFilteredProperties(categoryName = activeCategory) {
+            propertyCatalog = getPropertyCatalog();
+            if (categoryName === 'all') {
+                return propertyCatalog;
+            }
+            const normalizedCategory = categoryName.toLowerCase();
+            return propertyCatalog.filter(p => (p.category || '').toLowerCase() === normalizedCategory);
+        }
+
+        function renderPropertyViews(categoryName = activeCategory) {
+            const matches = getFilteredProperties(categoryName);
+            document.getElementById('homeGrid').innerHTML = generatePropertyGridHTML(matches);
+            document.getElementById('searchGrid').innerHTML = generatePropertyGridHTML(matches);
+            return matches;
+        }
+
+        function renderInitialGrids() {
+            activeCategory = 'all';
+            renderPropertyViews('all');
+        }
+
+        function handleSearch(event) {
+            if (event.key === 'Enter' || event.type === 'keyup') {
+                const query = event.target.value.toLowerCase().trim();
+                if (query === '') {
+                    activeCategory = 'all';
+                    renderPropertyViews('all');
+                    router.navigate('home');
+                    return;
+                }
+
+                propertyCatalog = getPropertyCatalog();
+                const matches = propertyCatalog.filter(p => 
+                    (p.title || '').toLowerCase().includes(query) || 
+                    (p.location || '').toLowerCase().includes(query) ||
+                    (p.category || '').toLowerCase().includes(query)
+                );
+
+                document.getElementById('homeGrid').innerHTML = generatePropertyGridHTML(matches);
+                document.getElementById('searchGrid').innerHTML = generatePropertyGridHTML(matches);
+                router.navigate('search');
+            }
+        }
+
+        function filterCategory(categoryName, element) {
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+
+            activeCategory = categoryName;
+            const matches = renderPropertyViews(categoryName);
+
+            if (categoryName === 'all') {
+                router.navigate('home');
+            } else {
+                router.navigate('search');
+            }
+
+            return matches;
+        }
+
+        /* --- 🖼️ FULL DETAIL SLIDESHOW VIEW BUILDER Engine --- */
+        let currentActiveSlideIdx = 0;
+
+        function renderDetailsPage(propertyId) {
+            const property = propertyCatalog.find(p => p.id === propertyId);
+            if (!property) return;
+
+            currentActiveSlideIdx = 0;
+
+            const target = document.getElementById('detailsTarget');
+            target.innerHTML = `
+                <div class="slideshow-wrapper">
+                    <div class="slide-track" id="slideTrack">
+                        ${property.images.map(img => `<img src="${img}" class="slide-img" alt="Gallery View">`).join('')}
+                    </div>
+                    ${property.images.length > 1 ? `
+                        <button class="slide-nav slide-prev" onclick="moveSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <button class="slide-nav slide-next" onclick="moveSlide(1)"><i class="fas fa-chevron-right"></i></button>
+                    ` : ''}
+                </div>
+                
+                <div class="details-info-block">
+                    <div class="card-header-row">
+                        <h2>${property.title}</h2>
+                        <h2 style="color:var(--accent); font-weight:700;">${property.price}</h2>
+                    </div>
+                    <p style="color: var(--text-muted); font-size:0.95rem; margin-top:4px;">
+                        <i class="fas fa-map-marker-alt" style="color:var(--accent);"></i> ${property.location} | <i class="fas fa-star" style="color:var(--accent);"></i> ${property.rating}
+                    </p>
+                    
+                    <h3 style="margin-top:24px;">Property Features & Matrix Specifications</h3>
+                    <div class="features-grid">
+                        <div class="feature-item"><i class="fas fa-expand-arrows-alt"></i> ${property.space}</div>
+                        ${property.features.map(f => `<div class="feature-item"><i class="fas fa-check-circle"></i> ${f}</div>`).join('')}
+                    </div>
+
+                    <h3 style="margin-top:24px;">Architectural Statement</h3>
+                    <p style="line-height:1.6; color:var(--text-muted); margin-top:8px;">${property.description}</p>
+                    
+                    <div class="agent-card">
+                        <div>
+                            <h4>Primary Listing Agent Portal</h4>
+                            <p style="font-size:0.85rem; color:var(--text-muted);">Assigned Verification Authority: Archstone Concierge Division</p>
+                        </div>
+                        <a href="tel:+23480000000" class="agent-call-btn"><i class="fas fa-phone-alt"></i> Secure Voice Connection Agent</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function moveSlide(directionStep) {
+            const track = document.getElementById('slideTrack');
+            const totalSlides = track.children.length;
+            
+            currentActiveSlideIdx = (currentActiveSlideIdx + directionStep + totalSlides) % totalSlides;
+            track.style.transform = `translateX(-${currentActiveSlideIdx * 100}%)`;
+        }
+
+        function submitFeedback(e) {
+            e.preventDefault();
+            alert("System Message: Thank you. Your structural architectural evaluation report has been verified.");
+            document.getElementById('feedbackForm').reset();
+            router.navigate('home');
+        }
+
+
+        /* --- 🎨 LOAD PERSISTED THEME PREFERENCE --- */
+        function loadThemePreference() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.setAttribute('data-theme', savedTheme);
+            const checkbox = document.getElementById('themeToggleCheckbox');
+            if (checkbox) {
+                checkbox.checked = (savedTheme === 'light');
+            }
+        }
+
+        // Initialize Runtime Compilation
+        window.addEventListener('DOMContentLoaded', () => {
+            loadThemePreference();
+            renderInitialGrids();
+            if (window.location.hash) {
+                const targetView = window.location.hash.replace('#', '');
+                if (targetView && router.views[targetView]) {
+                    router.navigate(targetView, null, false);
+                }
+            } else {
+                window.history.replaceState({ view: 'home', contextId: null }, '', '#home');
+            }
+        });
+    </script>
+    <script type="module" src="2main.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<DOCTYPE html>
+<html>
+<head>
+    <title>E-Estate</title>
+    <style>
+        body{
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+        .intro{
+            font-weight: lighter;
+        }
+        .nav{
+            display: flex;
+            justify-content: center;  
+        }
+        
+    </style>
+
+</head>
+<body>
+    
+    <div class="h1">
+        <h1>Estate</h1>
+    </div>
+    <div class="intro">
+        <p>Wecome to Estate</p>
+    </div>
+    <div class="nav">
+        <nav>
+            <a>Houses</a>
+            <a>Apartments</a>
+            <a>Lands</a>
+            <a>Others</a>
+        </nav>
+     <div class="profile-btn">
+        <a>Profile</a>
+     </div>   
+        
+
+</body>
+
+<footer>
+
+</footer>
+</html>
+
+side panel functionalites:
+    Login as Admin
+    Signout 
+    
+    Properties{
+    
+    Buy Now:
+    Lands
+    Houses
+    Apartments
+
+    Rent Today:
+    Apartments
+    Houses
+    
+
+
+    }
